@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="version" content="1.0.0">
     <title>Rungs - Daily Puzzle</title>
     <style>
         :root {
@@ -1356,7 +1357,7 @@
     
     <!-- RB Games Auth Module -->
     <script>
-    const RBAuth = (function() {
+    const GSAuth = (function() {
         'use strict';
         
         const FIREBASE_CONFIG = {
@@ -1550,8 +1551,8 @@
                             <span class="account-sync" id="sync-status">${getSyncStatusText()}</span>
                         </div>
                         <div class="account-actions">
-                            <button class="btn" onclick="RBAuth.sync()">↻ Sync</button>
-                            <button class="btn" onclick="RBAuth.signOut()">Sign Out</button>
+                            <button class="btn" onclick="GSAuth.sync()">↻ Sync</button>
+                            <button class="btn" onclick="GSAuth.signOut()">Sign Out</button>
                         </div>
                     </div>
                 `;
@@ -1567,7 +1568,7 @@
                 section.innerHTML = `
                     <div class="account-signed-out">
                         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">Save progress across devices</p>
-                        <button class="btn btn-primary" onclick="RBAuth.signIn()">🔐 Sign in with Google</button>
+                        <button class="btn btn-primary" onclick="GSAuth.signIn()">🔐 Sign in with Google</button>
                     </div>
                 `;
             }
@@ -1664,7 +1665,7 @@
         </div>
 
         <footer class="footer">
-            v2.9.5 • Rungs
+            v1.0.0 • Rungs
         </footer>
     </div>
 
@@ -2200,7 +2201,7 @@
         // ============ END GAME SHELF INTEGRATION ============
 
         // ============ CONFIGURATION ============
-        const VERSION = '6.3.0';
+        const VERSION = '1.0.0';
         const GAME_URL = 'https://rfrbrn.github.io/rungs/rungs.html'; // Update this when hosted
         const DEBUG_MODE = false; // Set to true to show test mode in menu
         
@@ -3424,8 +3425,11 @@
         // ============ SOUND MANAGER ============
         let soundEnabled = localStorage.getItem('rungsSound') !== 'false';
         
-        // Plain Mode - defaults to ON for free tier
-        let plainMode = localStorage.getItem('rungsPlainMode') !== 'false';
+        // Plain Mode - defaults to ON for first run (free tier)
+        if (localStorage.getItem('rungsPlainMode') === null) {
+            localStorage.setItem('rungsPlainMode', 'true');
+        }
+        let plainMode = localStorage.getItem('rungsPlainMode') === 'true';
         let audioContext = null;
         
         function getAudioContext() {
@@ -3531,13 +3535,13 @@
             applyPlainMode();
             
             // If Plain Mode is turned ON while signed in, sign out
-            if (plainMode && typeof RBAuth !== 'undefined' && RBAuth.isSignedIn()) {
-                RBAuth.signOut();
+            if (plainMode && typeof GSAuth !== 'undefined' && GSAuth.isSignedIn()) {
+                GSAuth.signOut();
             }
             
             // Update account section
-            if (typeof RBAuth !== 'undefined') {
-                RBAuth.updateUI();
+            if (typeof GSAuth !== 'undefined') {
+                GSAuth.updateUI();
             }
         }
         
@@ -5080,8 +5084,8 @@ rungs.game`;
         applyPlainMode();
         initPlainModeToggle();
         
-        // Initialize Cloud Sync (RBAuth)
-        RBAuth.init('rungs', {
+        // Initialize Cloud Sync (GSAuth)
+        GSAuth.init('rungs', {
             stats: 'rungsStats',
             practice: 'rungsPracticeStats'
         });
