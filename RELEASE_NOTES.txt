@@ -1,0 +1,24 @@
+rungs v1.0.4 Release Notes
+================================
+
+Release Date: 2026-01-22
+Previous Version: 1.0.3
+
+Changes in v1.0.4:
+------------------
+- Added gs-app-id meta tag for reliable app detection
+- Google Analytics 4 tracking (G-XRL2SVN0YF)
+
+New Meta Tag:
+------------
+<meta name="gs-app-id" content="rungs">
+
+This tag permanently identifies the app for Command Center,
+replacing fragile pattern matching detection.
+
+Files Included:
+--------------
+- index.html (main app)
+- sw.js (service worker v1.0.4)
+- manifest.json (PWA manifest)
+- icons/ (PWA icons)
