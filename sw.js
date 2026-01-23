@@ -2,7 +2,7 @@
  * Rungs PWA Service Worker
  * Version: 1.0.2
  */
-const CACHE_VERSION = 'v1.0.7';
+const CACHE_VERSION = 'v1.0.8';
 const CACHE_NAME = `rungs-pwa-${CACHE_VERSION}`;
 
 const CACHE_FILES = ['./', './index.html', './manifest.json'];
