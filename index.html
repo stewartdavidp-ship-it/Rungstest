@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="version" content="1.0.8">
+    <meta name="version" content="1.0.9">
     <title>Rungs - Daily Puzzle</title>
     
     <!-- PWA Support -->
@@ -1682,7 +1682,7 @@
         </div>
 
         <footer class="footer">
-            v1.0.8 &bull; Rungs
+            v1.0.9 &bull; Rungs
         </footer>
     </div>
 
@@ -2146,10 +2146,10 @@
     </div>
 
     <script>
-        // ============ GAME SHELF INTEGRATION MODULE v1.0.8 ============
+        // ============ GAME SHELF INTEGRATION MODULE v1.0.9 ============
         (function() {
             'use strict';
-            const GAMESHELF_VERSION = '1.0.8';
+            const GAMESHELF_VERSION = '1.0.9';
             if (window.GameShelfIntegration) return;
             
             window.GameShelfIntegration = {
@@ -2165,7 +2165,7 @@
                         name: config.name || gameId,
                         icon: config.icon || '🎮',
                         url: config.url || window.location.hostname,
-                        version: config.version || '1.0.8',
+                        version: config.version || '1.0.9',
                         type: config.type || 'daily',
                         ...config
                     };
@@ -2247,7 +2247,7 @@
         // ============ END GAME SHELF INTEGRATION ============
 
         // ============ CONFIGURATION ============
-        const VERSION = '1.0.8';
+        const VERSION = '1.0.9';
         const GAME_URL = 'https://rfrbrn.github.io/rungs/rungs.html'; // Update this when hosted
         const DEBUG_MODE = false; // Set to true to show test mode in menu
         
@@ -3478,6 +3478,81 @@
         let plainMode = localStorage.getItem('rungsPlainMode') === 'true';
         let audioContext = null;
         
+        // v1.0.9: Save/restore in-progress game state to survive page reloads
+        function saveGameState() {
+            if (isPracticeMode || isTutorialMode || gameOver) return;
+            
+            const today = getTodayString();
+            const state = {
+                date: today,
+                stack: stack,
+                attemptsUsed: attemptsUsed,
+                hintRevealed: hintRevealed,
+                // Track which items are stacked (by their IDs)
+                stackedItems: []
+            };
+            
+            // Collect stacked item IDs
+            document.querySelectorAll('.item.stacked').forEach(el => {
+                state.stackedItems.push(parseInt(el.dataset.id));
+            });
+            
+            try {
+                localStorage.setItem('rungsGameState', JSON.stringify(state));
+            } catch (e) {
+                console.error('Error saving game state:', e);
+            }
+        }
+        
+        function loadGameState() {
+            try {
+                const saved = localStorage.getItem('rungsGameState');
+                if (!saved) return null;
+                
+                const state = JSON.parse(saved);
+                const today = getTodayString();
+                
+                // Only restore if it's from today and game not finished
+                if (state.date === today && !hasPlayedToday()) {
+                    return state;
+                }
+                
+                // Clear stale state
+                localStorage.removeItem('rungsGameState');
+                return null;
+            } catch (e) {
+                console.error('Error loading game state:', e);
+                return null;
+            }
+        }
+        
+        function restoreGameState(state) {
+            console.log('🔄 Restoring saved game state');
+            
+            // Restore state variables
+            stack = state.stack || [null, null, null, null];
+            attemptsUsed = state.attemptsUsed || 0;
+            hintRevealed = state.hintRevealed || false;
+            
+            // Mark stacked items
+            (state.stackedItems || []).forEach(id => {
+                const itemEl = document.querySelector(`.item[data-id="${id}"]`);
+                if (itemEl) {
+                    itemEl.classList.add('stacked');
+                }
+            });
+            
+            // Update displays
+            updateStackDisplay();
+            updateAttempts();
+            updateButtons();
+            updateThemeHint();
+        }
+        
+        function clearGameState() {
+            localStorage.removeItem('rungsGameState');
+        }
+        
         function getAudioContext() {
             if (!audioContext) {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -4422,6 +4497,12 @@
             } else {
                 currentPuzzle = getDailyPuzzle();
                 renderPuzzle();
+                
+                // v1.0.9: Restore saved game state if available
+                const savedState = loadGameState();
+                if (savedState && !isPracticeMode && !isTutorialMode) {
+                    restoreGameState(savedState);
+                }
             }
         }
         
@@ -4595,6 +4676,7 @@
             selectedItems = [];
             updateStackDisplay();
             updateButtons();
+            saveGameState(); // v1.0.9: Persist progress
             
             // Check if only 2 items remain - auto stack them (but don't auto-submit)
             const remainingItems = document.querySelectorAll('.item:not(.stacked)');
@@ -4608,6 +4690,7 @@
                     remainingItems.forEach(el => el.classList.add('stacked'));
                     updateStackDisplay();
                     updateButtons();
+                    saveGameState(); // v1.0.9: Persist progress after auto-stack
                 }, 300);
             }
         }
@@ -4631,6 +4714,7 @@
             selectedSlot = null;
             updateStackDisplay();
             updateButtons();
+            saveGameState(); // v1.0.9: Persist progress
         }
 
         function resetGame() {
@@ -4646,6 +4730,7 @@
             
             updateStackDisplay();
             updateButtons();
+            saveGameState(); // v1.0.9: Persist progress (cleared state)
         }
 
         // ============ DISPLAY UPDATES ============
@@ -4719,6 +4804,7 @@
             }
             
             updateStackDisplay();
+            saveGameState(); // v1.0.9: Persist progress
         }
 
         function updateButtons() {
@@ -4822,6 +4908,7 @@
             if (success) {
                 gameWon = true;
                 gameOver = true;
+                clearGameState(); // v1.0.9: Clear saved state on win
                 playCorrectSound();
                 showBonusRound();
             } else {
@@ -4831,9 +4918,11 @@
                 
                 if (attemptsUsed >= 4) {
                     gameOver = true;
+                    clearGameState(); // v1.0.9: Clear saved state on loss
                     playLoseSound();
                     showFinalResult(false, results);
                 } else {
+                    saveGameState(); // v1.0.9: Save state after failed attempt
                     playIncorrectSound();
                     showAttemptResult(results);
                 }
@@ -5305,6 +5394,7 @@ rungs.game`;
                     
                     updateStackDisplay();
                     updateButtons();
+                    saveGameState(); // v1.0.9: Persist progress
                 }
             });
         });
