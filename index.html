@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="version" content="1.0.3">
+    <meta name="version" content="1.0.5">
     <title>Rungs - Daily Puzzle</title>
     
     <!-- PWA Support -->
@@ -1677,7 +1677,7 @@
         </div>
 
         <footer class="footer">
-            v1.0.3 &bull; Rungs
+            v1.0.5 &bull; Rungs
         </footer>
     </div>
 
@@ -2141,10 +2141,10 @@
     </div>
 
     <script>
-        // ============ GAME SHELF INTEGRATION MODULE v1.0.3 ============
+        // ============ GAME SHELF INTEGRATION MODULE v1.0.5 ============
         (function() {
             'use strict';
-            const GAMESHELF_VERSION = '1.0.3';
+            const GAMESHELF_VERSION = '1.0.5';
             if (window.GameShelfIntegration) return;
             
             window.GameShelfIntegration = {
@@ -2160,7 +2160,7 @@
                         name: config.name || gameId,
                         icon: config.icon || '🎮',
                         url: config.url || window.location.hostname,
-                        version: config.version || '1.0.3',
+                        version: config.version || '1.0.5',
                         type: config.type || 'daily',
                         ...config
                     };
@@ -2242,7 +2242,7 @@
         // ============ END GAME SHELF INTEGRATION ============
 
         // ============ CONFIGURATION ============
-        const VERSION = '1.0.3';
+        const VERSION = '1.0.5';
         const GAME_URL = 'https://rfrbrn.github.io/rungs/rungs.html'; // Update this when hosted
         const DEBUG_MODE = false; // Set to true to show test mode in menu
         
@@ -3712,13 +3712,11 @@
             isTutorialMode = false;
             currentPuzzle = getDailyPuzzle();
             
-            // Render without auto-intro, then show intro manually if enabled
-            const shouldShowIntro = showIntroOnStart;
-            renderPuzzleQuietly();
+            // User said they've played before - skip intro & disable for future
+            showIntroOnStart = false;
+            localStorage.setItem('rungsShowIntro', 'false');
             
-            if (shouldShowIntro) {
-                setTimeout(showIntro, 300);
-            }
+            renderPuzzleQuietly();
         }
         
         function completeTutorial() {
@@ -4378,14 +4376,18 @@
                 return;
             }
             
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(result.shareText).then(() => {
-                    showMessage('Copied to clipboard!');
+            // Try native share first (mobile)
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Rungs',
+                    text: result.shareText
                 }).catch(() => {
-                    fallbackCopy(result.shareText);
+                    // User cancelled or share failed, fall back to clipboard
+                    fallbackCopyToClipboard(result.shareText);
                 });
             } else {
-                fallbackCopy(result.shareText);
+                // Desktop fallback - copy to clipboard
+                fallbackCopyToClipboard(result.shareText);
             }
         }
 
