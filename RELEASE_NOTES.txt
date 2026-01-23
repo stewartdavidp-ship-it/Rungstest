@@ -1,16 +1,10 @@
-Rungs v1.0.5
+Rungs v1.0.7
 ============
 Release Date: January 23, 2025
 
-TUTORIAL SKIP FIX
------------------
-Fixed issue where declining the tutorial ("No, I've played before") 
-still showed the game overview/intro screen.
-
-Now when user says they've played before:
-- Tutorial is marked complete
-- Intro screen is NOT shown
-- "Show intro on start" setting is disabled
-- User goes directly to the game
-
-(Also includes v1.0.4 fix: Native share API for saved results)
+APP ICON WITH GS ORIGINALS BADGE
+--------------------------------
+Updated icon featuring:
+- Ladder with gold rungs
+- Game Shelf puzzle piece logo at bottom center
+- Identifies as part of the GS Originals family
