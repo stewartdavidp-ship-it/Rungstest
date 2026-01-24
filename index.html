@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="version" content="1.0.9">
+    <meta name="version" content="1.0.10">
     <title>Rungs - Daily Puzzle</title>
     
     <!-- PWA Support -->
@@ -293,7 +293,10 @@
         .stack-slot .pair-item {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 5px;
+            padding: 0 40px;
+            width: 100%;
         }
 
         .stack-slot .pair-divider {
@@ -315,28 +318,32 @@
             opacity: 1;
         }
 
-        .stack-slot .reorder-btns {
-            position: absolute;
-            right: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
         .stack-slot .reorder-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
             background: var(--bg-tertiary);
             border: 1px solid var(--border-color);
             color: var(--text-secondary);
-            width: 24px;
-            height: 18px;
+            width: 28px;
+            height: 28px;
             border-radius: 4px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.7rem;
+            font-size: 0.8rem;
             padding: 0;
             transition: all 0.15s;
+            z-index: 2;
+        }
+        
+        .stack-slot .reorder-btn.btn-up {
+            left: 6px;
+        }
+        
+        .stack-slot .reorder-btn.btn-down {
+            right: 6px;
         }
 
         .stack-slot .reorder-btn:hover {
@@ -2034,7 +2041,7 @@
                             </div>
                         </div>
                     </div>
-                    <p>Once placed, use the <strong>▲ ▼ arrows</strong> to reorder pairs.</p>
+                    <p>Once placed, use <strong>▲</strong> (left) to move up and <strong>▼</strong> (right) to move down.</p>
                     <p style="margin-top: 10px; padding: 10px; background: var(--bg-tertiary); border-radius: 8px;">
                         <strong style="color: var(--accent-gold);">📏 Key Rule:</strong> Order goes from <strong>least to most</strong> — smallest→largest, first→last, start→finish.
                     </p>
@@ -2121,7 +2128,7 @@
                 
                 <p><strong>Step 2:</strong> Tap <strong>Place</strong> to add the pair</p>
                 
-                <p><strong>Step 3:</strong> Order the pairs using ▲▼ buttons</p>
+                <p><strong>Step 3:</strong> Order the pairs using ▲ (left) and ▼ (right) buttons</p>
                 
                 <p><strong>Step 4:</strong> Tap <strong>Submit</strong> when ready</p>
                 
@@ -2149,7 +2156,7 @@
         // ============ GAME SHELF INTEGRATION MODULE v1.0.9 ============
         (function() {
             'use strict';
-            const GAMESHELF_VERSION = '1.0.9';
+            const GAMESHELF_VERSION = '1.0.10';
             if (window.GameShelfIntegration) return;
             
             window.GameShelfIntegration = {
@@ -2165,7 +2172,7 @@
                         name: config.name || gameId,
                         icon: config.icon || '🎮',
                         url: config.url || window.location.hostname,
-                        version: config.version || '1.0.9',
+                        version: config.version || '1.0.10',
                         type: config.type || 'daily',
                         ...config
                     };
@@ -2247,7 +2254,7 @@
         // ============ END GAME SHELF INTEGRATION ============
 
         // ============ CONFIGURATION ============
-        const VERSION = '1.0.9';
+        const VERSION = '1.0.10';
         const GAME_URL = 'https://rfrbrn.github.io/rungs/rungs.html'; // Update this when hosted
         const DEBUG_MODE = false; // Set to true to show test mode in menu
         
@@ -3795,6 +3802,7 @@
             // User said they've played before - skip intro & disable for future
             showIntroOnStart = false;
             localStorage.setItem('rungsShowIntro', 'false');
+            skipIntroAfterTutorial = true; // Extra safeguard to prevent intro
             
             renderPuzzleQuietly();
         }
@@ -4759,11 +4767,9 @@
                     const canMoveDown = i < maxFilledIndex;
                     
                     slot.innerHTML = `
+                        <button class="reorder-btn btn-up" onclick="event.stopPropagation(); moveStackItem(${i}, -1)" ${!canMoveUp ? 'disabled' : ''} title="Move up">▲</button>
                         <span class="pair-item">${pairDisplay}</span>
-                        <span class="reorder-btns">
-                            <button class="reorder-btn" onclick="event.stopPropagation(); moveStackItem(${i}, -1)" ${!canMoveUp ? 'disabled' : ''} title="Move up">▲</button>
-                            <button class="reorder-btn" onclick="event.stopPropagation(); moveStackItem(${i}, 1)" ${!canMoveDown ? 'disabled' : ''} title="Move down">▼</button>
-                        </span>
+                        <button class="reorder-btn btn-down" onclick="event.stopPropagation(); moveStackItem(${i}, 1)" ${!canMoveDown ? 'disabled' : ''} title="Move down">▼</button>
                     `;
                     slot.classList.add('filled');
                     // Sync selected state with selectedSlot variable
