@@ -1,18 +1,11 @@
-Rungs v1.0.10
+Rungs v1.0.11
 =============
-Release Date: January 24, 2026
+Release Date: January 25, 2026
 
-IMPROVED REORDER CONTROLS
--------------------------
-Redesigned the arrow buttons for reordering pairs in the stack:
-- Up arrow (▲) now on the LEFT side - moves pair up
-- Down arrow (▼) now on the RIGHT side - moves pair down
-- Larger touch targets (28px vs 24px)
-- Better visual clarity with left/right positioning
-- Updated tutorial and intro text to explain new layout
-
-FIX: "I KNOW THE RULES" FLOW
-----------------------------
-- Added extra safeguard to prevent "How to Play" intro from 
-  appearing after clicking "I know the rules"
-- skipIntroAfterTutorial flag now set during skip flow
+GAME SHELF HINT HELPER INTEGRATION
+----------------------------------
+- Added storeHintData() function
+- Automatically saves puzzle items to localStorage when game loads
+- Enables Game Shelf Hint Helper to auto-detect puzzle data
+- Exposes only the 8 items (NOT pairs, order, or theme)
+- Data stored as gameshelf_hint_data key
