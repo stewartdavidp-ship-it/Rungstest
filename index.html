@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="version" content="1.0.11">
+    <meta name="version" content="1.0.12">
     <title>Rungs - Daily Puzzle</title>
     
     <!-- PWA Support -->
@@ -2156,7 +2156,7 @@
         // ============ GAME SHELF INTEGRATION MODULE v1.0.9 ============
         (function() {
             'use strict';
-            const GAMESHELF_VERSION = '1.0.11';
+            const GAMESHELF_VERSION = '1.0.12';
             if (window.GameShelfIntegration) return;
             
             window.GameShelfIntegration = {
@@ -2172,7 +2172,7 @@
                         name: config.name || gameId,
                         icon: config.icon || '🎮',
                         url: config.url || window.location.hostname,
-                        version: config.version || '1.0.11',
+                        version: config.version || '1.0.12',
                         type: config.type || 'daily',
                         ...config
                     };
@@ -2254,7 +2254,7 @@
         // ============ END GAME SHELF INTEGRATION ============
 
         // ============ CONFIGURATION ============
-        const VERSION = '1.0.11';
+        const VERSION = '1.0.12';
         const GAME_URL = 'https://rfrbrn.github.io/rungs/rungs.html'; // Update this when hosted
         const DEBUG_MODE = false; // Set to true to show test mode in menu
         
@@ -4787,14 +4787,15 @@
                     const display2 = item2.type === 'emoji' ? `<span style="font-size: 1.3em;">${item2.display}</span>` : item2.display;
                     const pairDisplay = `${display1} <span style="color: var(--accent-gold); margin: 0 4px;">&</span> ${display2}`;
                     
-                    // Disable up if first filled, disable down if last filled
-                    const canMoveUp = i > 0 && stack[i-1] !== null;
-                    const canMoveDown = i < maxFilledIndex;
+                    // With column-reverse, higher index = visually higher on screen
+                    // So "up" means +1 index, "down" means -1 index
+                    const canMoveUp = i < maxFilledIndex;
+                    const canMoveDown = i > 0 && stack[i-1] !== null;
                     
                     slot.innerHTML = `
-                        <button class="reorder-btn btn-up" onclick="event.stopPropagation(); moveStackItem(${i}, -1)" ${!canMoveUp ? 'disabled' : ''} title="Move up">▲</button>
+                        <button class="reorder-btn btn-up" onclick="event.stopPropagation(); moveStackItem(${i}, 1)" ${!canMoveUp ? 'disabled' : ''} title="Move up">▲</button>
                         <span class="pair-item">${pairDisplay}</span>
-                        <button class="reorder-btn btn-down" onclick="event.stopPropagation(); moveStackItem(${i}, 1)" ${!canMoveDown ? 'disabled' : ''} title="Move down">▼</button>
+                        <button class="reorder-btn btn-down" onclick="event.stopPropagation(); moveStackItem(${i}, -1)" ${!canMoveDown ? 'disabled' : ''} title="Move down">▼</button>
                     `;
                     slot.classList.add('filled');
                     // Sync selected state with selectedSlot variable
